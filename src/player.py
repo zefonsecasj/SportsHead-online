@@ -10,11 +10,11 @@ class Player:
         self.__firstPlayer = True
         self.__surface = surface
         self.__PlayerSpeed = pygame.time.Clock().tick(60)/1000
-        self.__SPEEDCONST = 100
+        self.__SPEEDCONST = 200
         self.__jumping = False
         self.__gravity = 10
-        self.__mass = 1
-        self.PlayerBoot = boots("black", self.getSurface(), pygame.Vector2(self.getPosition().x,self.getPosition().y+50))
+        self.__mass = 0.7
+        self.PlayerBoot = boots("black", pygame.Vector2(self.getPosition().x,self.getPosition().y+50))
 
     def setPlayerName(self,name):
         self.__name = name
@@ -62,7 +62,7 @@ class Player:
 
     def drawPlayer(self):
         pygame.draw.rect(self.getSurface(), self.getType(),self.getSize())
-        self.PlayerBoot.drawBoot()
+        self.PlayerBoot.drawBoot(self.getSurface())
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -76,15 +76,18 @@ class Player:
             self.setPosition((self.getPosition().x + self.__SPEEDCONST*self.getPlayerSpeed(),self.getPosition().y))
             self.PlayerBoot.setBootPosition((self.PlayerBoot.getBootPosition().x + self.__SPEEDCONST*self.getPlayerSpeed(),self.PlayerBoot.getBootPosition().y))
         if(keys[pygame.K_SPACE]):
+
             self.PlayerBoot.kick()
 
 class boots():
-    def __init__(self, color, surface, playerPosition):
+    def __init__(self, color, playerPosition):
         self.color = color
-        self.surface = surface
         self.bootSize = (40,20)
-        self.boot = pygame.Rect(((surface.get_width()/2, surface.get_height()/2 + 50),(40,20)))
+        self.surface = pygame.Surface((40,20))
+        self.boot = pygame.Rect(((self.surface.get_width()/2, self.surface.get_height()/2),(40,20)))
         self.bootPosition = playerPosition
+        self.rot_speed = 2
+        self.rot = 0 
 
     def getBootPosition(self):
         return self.bootPosition
@@ -92,10 +95,13 @@ class boots():
         self.bootPosition = pygame.Vector2(newPos)
         self.boot = pygame.Rect((self.getBootPosition(),self.bootSize))
 
-    def drawBoot(self):
+    def drawBoot(self,surface):
         pygame.draw.rect(self.surface, self.color,self.boot)
+        pygame.Surface.blit(surface, self.surface, (surface.get_width()/2,surface.get_height()/2))
+        pygame.display.update()
 
     def kick(self):
-        pass
+        pygame.transform.rotate(self.surface, 90)
+        self.drawBoot()
             
         
